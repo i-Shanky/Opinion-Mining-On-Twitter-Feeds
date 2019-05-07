@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <script src="https://cdn.anychart.com/js/8.0.1/anychart-core.min.js"></script>
+      <script src="https://cdn.anychart.com/js/8.0.1/anychart-pie.min.js"></script>
+      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+      <style type="text/css">
+         * {
+            box-sizing: border-box;
+            font-family: Arial;
+         }
+         body {
+            background: #444444;
+            /*color: black;*/
+         }
+         .container1 {
+            /*top: 25%;*/
+            position: absolute;
+            border-radius: 10px;
+            width: 40%;
+            height: 800px;
+            opacity: 0.9;
+            display: inline-block;
+            padding: 20px;
+            margin-bottom: 20px;
+         }
+         .positive {
+            left: 5%;
+            background: #80ff80;
+         }
+         .negative {
+            right: 5%;
+            background: crimson;
+         }
+         .fa-twitter {
+            color: #38A1F3;
+            font-size: 1.5em;
+         }
+         h1 {
+            text-align: center;
+            color: whitesmoke;
+            font-size: 4rem;
+            font-weight: 100;
+         }
+         .pPer{
+            position: absolute;
+            top: 1020px;
+            color: white;
+            margin-left: 190px;
+         }
+         .nPer{
+            position: absolute;
+            top: 1020px;
+            color: white;
+            margin-left: 870px;
+         }
+      </style>
+   </head>
+   <body>
+      <!-- <table border = 1>
+         {% for key in ptwee %}
+            <tr>
+               <td> {{ key }} </td>
+            </tr>
+         {% endfor %}
+      </table><br><br><br>
+      <table border = 1>
+         {% for val in ntwee %}
+            <tr>
+               <td> {{ val }} </td>
+            </tr>
+         {% endfor %}
+      </table>
+      <h1>{{ nPer }}</h1>
+      <h1>{{ pPer }}</h1> -->
+      <h1>Results</h1>
+      <div class="container1 positive">
+         <table>
+         {% for key in ptwee %}
+            <tr>
+               <td><i class="fab fa-twitter"></i> {{ key }} </td>
+            </tr>
+         {% endfor %}
+         </table>
+      </div>
+      <div class="container1 negative">
+         <table>
+            {% for val in ntwee %}
+               <tr>
+                  <td><i class="fab fa-twitter"></i> {{ val }} </td>
+               </tr>
+            {% endfor %}
+         </table>
+      </div>
+     <div class="pPer"><h2>Positive Tweets: {{ pPer }}%</h2></div>
+      <div class="nPer"><h2>Negative Tweets: {{ nPer }}%</h2></div>
+       <div id="container" style="width: 500px; height: 500px; position: absolute; top: 1100px; left: 430px;background-color: #252525; border: 1px double black"></div>
+    <script>
+        anychart.onDocumentReady(function() {
+
+        // set the data
+        var data = [
+            {x: "Positive Tweets", value: {{ pPer }} },
+            {x: "Negative Tweets", value: {{ nPer }} , exploded: true}
+        ];
+
+        // create the chart
+        var chart = anychart.pie();
+
+        // set the chart title
+        chart.title("Opinion Mining");
+
+        // add the data
+        chart.data(data);
+
+        // display the chart in the container
+        chart.container('container');
+        chart.draw();
+
+        });
+         chart.legend().position("right");
+         // set items layout
+         chart.legend().itemsLayout("vertical");
+         chart.sort("desc");
+    </script> 
+   </body>
+</html>
