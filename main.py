@@ -1,10 +1,45 @@
-#!/usr/bin/env python
+#import time
+#start = time.time()
+import json
+import numpy as np
+import keras
+import tensorflow as tf
+import keras.preprocessing.text as kpt
+from keras.models import model_from_json
 import re
 import tweepy
 from tweepy import OAuthHandler
-from textblob import TextBlob
+from keras.preprocessing.text import Tokenizer
+from keras import backend as K
+#import psutil
+import os
+# Load our dictionary file
+with open('dictionary.json', 'r') as dict_file:
+    dictionary = json.load(dict_file)
 
 
+def convert_text_to_index_array(text):
+        words = kpt.text_to_word_sequence(text)
+        wordIndices = []
+        for word in words:
+            if word in dictionary:
+                wordIndices.append(dictionary[word])
+        return wordIndices
+
+# num_words is the maximum number of words that will be considered by our algorithm
+tokenizer = Tokenizer(num_words=1000)
+
+# Load model
+json_file = open('1000w-model.json', 'r')
+loaded_model_json = json_file.read()
+json_file.close()
+
+model = model_from_json(loaded_model_json)
+model.load_weights('1000w-model.h5')
+graph = tf.get_default_graph()
+
+# These are our categories/labels
+labels = ['negative', 'positive',]
 class TwitterClient(object):
 
     def __init__(self):
@@ -25,16 +60,23 @@ class TwitterClient(object):
     def clean_tweet(self, tweet):
         return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
 
+    
+# Get user input and make a prediction on that input. Then return that prediction to the user.
     def get_tweet_sentiment(self, tweet):
-        analysis = TextBlob(self.clean_tweet(tweet))
-
-        if analysis.sentiment.polarity > 0:
+        evalSent = self.clean_tweet(tweet)
+        testArr = convert_text_to_index_array(self.clean_tweet(tweet))
+        uinput = tokenizer.sequences_to_matrix([testArr], mode='binary')
+        global graph
+        with graph.as_default():
+                model._make_predict_function()
+                pred = model.predict(uinput) 
+        #print("%s sentiment; %f%% confidence" % (labels[np.argmax(pred)], pred[0][np.argmax(pred)] * 100))
+        if labels[np.argmax(pred)] == 'positive' and pred[0][np.argmax(pred)] > 0.5:
             return 'positive'
-        elif analysis.sentiment.polarity == 0:
-            return 'neutral'
-        else:
+        elif labels[np.argmax(pred)] == 'negative' and pred[0][np.argmax(pred)] > 0.5:
             return 'negative'
-
+        else:
+            return 'neutral'
 
     def get_tweets(self, query, count=10):
         tweets = []
@@ -91,7 +133,13 @@ def main():
     print("\n\nNegative tweets:")
     for tweet in ntweets[:10]:
         print(tweet['text'])
-
-
+#process = psutil.Process(os.getpid())
+#print("Total memory used")
+#print(process.memory_info().rss)      
+#end = time.time()
+#print("Total time taken")
+#print(end - start)
 if __name__ == '__main__':
     main()
+
+    
